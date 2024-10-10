@@ -247,22 +247,36 @@ root.buttons(gears.table.join(
 
 -- {{{ Key bindings
 globalkeys = gears.table.join(
-    -- Clipboard fullscreen screenshot
+    -- Audio manipulations
+    awful.key({}, "XF86AudioRaiseVolume", function()
+        awful.spawn("pactl set-sink-volume @DEFAULT_SINK@ +5%")
+    end, {description = "Increase audio volume", group = "audio"}),
+
+    awful.key({}, "XF86AudioLowerVolume", function()
+        awful.spawn("pactl set-sink-volume @DEFAULT_SINK@ -5%")
+    end, {description = "Decrease audio volume", group = "audio"}),
+
+    awful.key({}, "XF86AudioMute", function()
+        awful.spawn("pactl set-sink-mute @DEFAULT_SINK@ toggle")
+    end, {description = "Toggle audio mute", group = "audio"}),
+
+    awful.key({}, "XF86AudioMicMute", function()
+        awful.spawn("pactl set-source-mute @DEFAULT_SOURCE@ toggle")
+    end, {description = "Toggle microphone mute", group = "audio"}),
+    
+    -- Clipboard manipulations
     awful.key({}, "Print", function()
         awful.spawn("sh -c 'maim -u | xclip -selection clipboard -t image/png'")
     end, {description = "clipboard fullscreen screenshot", group = "screenshot"}),
 
-    -- Clipboard selection screenshot
     awful.key({"Control"}, "Print", function()
         awful.spawn("sh -c 'maim -u -s | xclip -selection clipboard -t image/png'")
     end, {description = "clipboard selection screenshot", group = "screenshot"}),
 
-    -- Clipboard active window screenshot
     awful.key({modkey, "Control"}, "Print", function()
         awful.spawn("sh -c 'maim -u -i $(xdotool getactivewindow) | xclip -selection clipboard -t image/png'")
     end, {description = "clipboard active window screenshot", group = "screenshot"}),
 
-    -- Save full screen screenshot
     awful.key({"Control", "Shift"}, "Print", function()
         awful.spawn("sh -c 'maim ~/Pictures/screenshots/$(date +%s).png'")
     end, {description = "save full screen screenshot", group = "screenshot"}),

@@ -237,6 +237,9 @@ awful.screen.connect_for_each_screen(function(s)
 end)
 -- }}}
 
+-- Define keyboard layouts
+awful.spawn.with_shell("setxkbmap -layout us,ru -option grp:alt_shift_toggle")
+
 -- {{{ Mouse bindings
 root.buttons(gears.table.join(
     awful.button({ }, 3, function () mymainmenu:toggle() end),

@@ -247,9 +247,31 @@ root.buttons(gears.table.join(
 
 -- {{{ Key bindings
 globalkeys = gears.table.join(
+    -- Clipboard fullscreen screenshot
+    awful.key({}, "Print", function()
+        awful.spawn("sh -c 'maim -u | xclip -selection clipboard -t image/png'")
+    end, {description = "clipboard fullscreen screenshot", group = "screenshot"}),
+
+    -- Clipboard selection screenshot
+    awful.key({"Control"}, "Print", function()
+        awful.spawn("sh -c 'maim -u -s | xclip -selection clipboard -t image/png'")
+    end, {description = "clipboard selection screenshot", group = "screenshot"}),
+
+    -- Clipboard active window screenshot
+    awful.key({modkey, "Control"}, "Print", function()
+        awful.spawn("sh -c 'maim -u -i $(xdotool getactivewindow) | xclip -selection clipboard -t image/png'")
+    end, {description = "clipboard active window screenshot", group = "screenshot"}),
+
+    -- Save full screen screenshot
+    awful.key({"Control", "Shift"}, "Print", function()
+        awful.spawn("sh -c 'maim ~/Pictures/screenshots/$(date +%s).png'")
+    end, {description = "save full screen screenshot", group = "screenshot"}),
+
+    -- Run rofi dmenu
       awful.key({ modkey }, "d", function () 
         awful.spawn("rofi -show run") 
-    end, {description = "run prompt", group = "launcher"}),
+    end, {description = "run rofi dmenu", group = "launcher"}),
+    
     awful.key({ modkey,           }, "s",      hotkeys_popup.show_help,
               {description="show help", group="awesome"}),
     awful.key({ modkey,           }, "Left",   awful.tag.viewprev,

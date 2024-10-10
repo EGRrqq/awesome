@@ -99,9 +99,9 @@ myawesomemenu = {
 			hotkeys_popup.show_help(nil, awful.screen.focused())
 		end,
 	},
-	{ "manual", terminal .. " -e man awesome" },
+	{ "manual",      terminal .. " -e man awesome" },
 	{ "edit config", editor_cmd .. " " .. awesome.conffile },
-	{ "restart", awesome.restart },
+	{ "restart",     awesome.restart },
 	{
 		"quit",
 		function()
@@ -255,7 +255,7 @@ awful.screen.connect_for_each_screen(function(s)
 			s.mypromptbox,
 		},
 		s.mytasklist, -- Middle widget
-		{ -- Right widgets
+		{           -- Right widgets
 			layout = wibox.layout.fixed.horizontal,
 			mykeyboardlayout,
 			wibox.widget.systray(),
@@ -281,7 +281,7 @@ root.buttons(gears.table.join(
 
 -- {{{ Key bindings
 globalkeys = gears.table.join(
-	-- Audio manipulations
+-- Audio manipulations
 	awful.key({}, "XF86AudioRaiseVolume", function()
 		awful.spawn("pactl set-sink-volume @DEFAULT_SINK@ +5%")
 	end, { description = "Increase audio volume", group = "audio" }),
@@ -318,7 +318,6 @@ globalkeys = gears.table.join(
 	end, { description = "run rofi dmenu", group = "launcher" }),
 	awful.key({ modkey }, "s", hotkeys_popup.show_help, { description = "show help", group = "awesome" }),
 	awful.key({ modkey }, "Escape", awful.tag.history.restore, { description = "go back", group = "tag" }),
-
 	awful.key({ modkey }, "j", function()
 		awful.client.focus.byidx(1)
 	end, { description = "focus next by index", group = "client" }),
@@ -570,16 +569,10 @@ awful.rules.rules = {
 			role = {
 				"AlarmWindow", -- Thunderbird's calendar.
 				"ConfigManager", -- Thunderbird's about:config.
-				"pop-up", -- e.g. Google Chrome's (detached) Developer Tools.
+				"pop-up",    -- e.g. Google Chrome's (detached) Developer Tools.
 			},
 		},
 		properties = { floating = true },
-	},
-
-	-- Add titlebars to normal clients and dialogs
-	{
-		rule_any = { type = { "normal", "dialog" } },
-		properties = { titlebars_enabled = true },
 	},
 
 	-- Set Firefox to always map on the tag named "2" on screen 1.
@@ -599,46 +592,6 @@ client.connect_signal("manage", function(c)
 		-- Prevent clients from being unreachable after screen count changes.
 		awful.placement.no_offscreen(c)
 	end
-end)
-
--- Add a titlebar if titlebars_enabled is set to true in the rules.
-client.connect_signal("request::titlebars", function(c)
-	-- buttons for the titlebar
-	local buttons = gears.table.join(
-		awful.button({}, 1, function()
-			c:emit_signal("request::activate", "titlebar", { raise = true })
-			awful.mouse.client.move(c)
-		end),
-		awful.button({}, 3, function()
-			c:emit_signal("request::activate", "titlebar", { raise = true })
-			awful.mouse.client.resize(c)
-		end)
-	)
-
-	awful.titlebar(c):setup({
-		{ -- Left
-			awful.titlebar.widget.iconwidget(c),
-			buttons = buttons,
-			layout = wibox.layout.fixed.horizontal,
-		},
-		{ -- Middle
-			{ -- Title
-				align = "center",
-				widget = awful.titlebar.widget.titlewidget(c),
-			},
-			buttons = buttons,
-			layout = wibox.layout.flex.horizontal,
-		},
-		{ -- Right
-			awful.titlebar.widget.floatingbutton(c),
-			awful.titlebar.widget.maximizedbutton(c),
-			awful.titlebar.widget.stickybutton(c),
-			awful.titlebar.widget.ontopbutton(c),
-			awful.titlebar.widget.closebutton(c),
-			layout = wibox.layout.fixed.horizontal(),
-		},
-		layout = wibox.layout.align.horizontal,
-	})
 end)
 
 -- Enable sloppy focus, so that focus follows mouse.

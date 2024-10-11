@@ -330,10 +330,10 @@ globalkeys = gears.table.join(
 
 	-- Layout manipulation
 	awful.key({ modkey }, "Left", function()
-		awful.client.focus.bydirection("left")
+		awful.client.focus.byidx(-1)
 	end, { description = "focus left", group = "client" }),
 	awful.key({ modkey }, "Right", function()
-		awful.client.focus.bydirection("right")
+		awful.client.focus.byidx(1)
 	end, { description = "focus right", group = "client" }),
 	awful.key({ modkey }, "Up", function()
 		awful.client.focus.bydirection("up")
@@ -342,11 +342,11 @@ globalkeys = gears.table.join(
 		awful.client.focus.bydirection("down")
 	end, { description = "focus down", group = "client" }),
 	awful.key({ modkey, "Shift" }, "Left", function()
-			awful.client.swap.bydirection("left")
+			awful.client.swap.byidx(-1)
 		end,
 		{ description = "swap with left client", group = "client" }),
 	awful.key({ modkey, "Shift" }, "Right", function()
-			awful.client.swap.bydirection("right")
+			awful.client.swap.byidx(1)
 		end,
 		{ description = "swap with right client", group = "client" }),
 	awful.key({ modkey, "Shift" }, "Up", function()

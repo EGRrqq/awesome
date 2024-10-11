@@ -314,7 +314,7 @@ globalkeys = gears.table.join(
 
 	-- Run rofi dmenu
 	awful.key({ modkey }, "d", function()
-		awful.spawn("rofi -show run")
+		awful.spawn("rofi -show combi -combi-modi drun -modi combi")
 	end, { description = "run rofi dmenu", group = "launcher" }),
 	awful.key({ modkey }, "s", hotkeys_popup.show_help, { description = "show help", group = "awesome" }),
 	awful.key({ modkey }, "Escape", awful.tag.history.restore, { description = "go back", group = "tag" }),

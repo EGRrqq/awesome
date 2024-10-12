@@ -2,12 +2,15 @@
 -- found (e.g. lgi). If LuaRocks is not installed, do nothing.
 pcall(require, "luarocks.loader")
 
+local default_font = "sans 10"
 -- Standard awesome library
 local gears = require("gears")
 local awful = require("awful")
 require("awful.autofocus")
 -- Widget and layout library
 local wibox = require("wibox")
+local vicious = require("vicious")
+
 -- Theme handling library
 local beautiful = require("beautiful")
 -- Notification library
@@ -99,9 +102,9 @@ myawesomemenu = {
 			hotkeys_popup.show_help(nil, awful.screen.focused())
 		end,
 	},
-	{ "manual",      terminal .. " -e man awesome" },
+	{ "manual", terminal .. " -e man awesome" },
 	{ "edit config", editor_cmd .. " " .. awesome.conffile },
-	{ "restart",     awesome.restart },
+	{ "restart", awesome.restart },
 	{
 		"quit",
 		function()
@@ -141,8 +144,55 @@ menubar.utils.terminal = terminal -- Set the terminal for applications that requ
 mykeyboardlayout = awful.widget.keyboardlayout()
 
 -- {{{ Wibar
+-- Create separator widget
+local spacer = wibox.widget.separator({
+	orientation = "vertical", -- or "vertical" depending on your layout
+	forced_width = 10, -- Set the width of the spacer
+	thickness = 2, -- Set the thickness of the separator
+	color = "#FFFFFF", -- Set the color of the separator
+})
+
+-- Create systray widget
+local systray = wibox.widget.systray()
+
+-- Create memwidget
+-- -- Create a textbox for the memory widget
+local memwidget = wibox.widget.textbox()
+memwidget.font = default_font
+
+-- -- Create a container for the memory details
+local mem_details = wibox.widget.textbox()
+mem_details.font = default_font
+mem_details.visible = true -- Initially hidden
+
+-- -- Register the vicious memory widget
+vicious.cache(vicious.widgets.mem)
+vicious.register(memwidget, vicious.widgets.mem, function(widget, args)
+	local used_pct = args[1]
+	return string.format("%.1f%%", used_pct)
+end, 13)
+
+-- -- Register the memory details widget
+vicious.register(mem_details, vicious.widgets.mem, function(widget, args)
+	local used_gb = args[2] / 1024
+	local total_gb = args[3] / 1024
+	return string.format(" [%.1f GB/%.0f GB]", used_gb, total_gb)
+end, 13)
+
+-- -- Create a wibox to hold the widgets
+local mem_container = wibox.layout.fixed.horizontal()
+mem_container:add(memwidget)
+mem_container:add(mem_details)
+
+-- -- Add click functionality to the memory widget
+memwidget:buttons(awful.util.table.join(awful.button({}, 1, function()
+	mem_details.visible = not mem_details.visible -- Toggle visibility
+	mem_details:emit_signal("widget::redraw_needed") -- Redraw the widget
+end)))
+
 -- Create a textclock widget
 mytextclock = wibox.widget.textclock()
+mytextclock.font = default_font
 
 -- Create a wibox for each screen and add it
 local taglist_buttons = gears.table.join(
@@ -252,15 +302,19 @@ awful.screen.connect_for_each_screen(function(s)
 			layout = wibox.layout.fixed.horizontal,
 			mylauncher,
 			s.mytaglist,
+			s.mylayoutbox,
 			s.mypromptbox,
 		},
 		s.mytasklist, -- Middle widget
-		{           -- Right widgets
+		{ -- Right widgets
 			layout = wibox.layout.fixed.horizontal,
 			mykeyboardlayout,
-			wibox.widget.systray(),
+			spacer,
+			systray,
+			spacer,
+			mem_container,
+			spacer,
 			mytextclock,
-			s.mylayoutbox,
 		},
 	})
 end)
@@ -281,7 +335,7 @@ root.buttons(gears.table.join(
 
 -- {{{ Key bindings
 globalkeys = gears.table.join(
--- Audio manipulations
+	-- Audio manipulations
 	awful.key({}, "XF86AudioRaiseVolume", function()
 		awful.spawn("pactl set-sink-volume @DEFAULT_SINK@ +5%")
 	end, { description = "Increase audio volume", group = "audio" }),
@@ -342,21 +396,17 @@ globalkeys = gears.table.join(
 		awful.client.focus.bydirection("down")
 	end, { description = "focus down", group = "client" }),
 	awful.key({ modkey, "Shift" }, "Left", function()
-			awful.client.swap.byidx(-1)
-		end,
-		{ description = "swap with left client", group = "client" }),
+		awful.client.swap.byidx(-1)
+	end, { description = "swap with left client", group = "client" }),
 	awful.key({ modkey, "Shift" }, "Right", function()
-			awful.client.swap.byidx(1)
-		end,
-		{ description = "swap with right client", group = "client" }),
+		awful.client.swap.byidx(1)
+	end, { description = "swap with right client", group = "client" }),
 	awful.key({ modkey, "Shift" }, "Up", function()
-			awful.client.swap.bydirection("up")
-		end,
-		{ description = "swap with upper client", group = "client" }),
+		awful.client.swap.bydirection("up")
+	end, { description = "swap with upper client", group = "client" }),
 	awful.key({ modkey, "Shift" }, "Down", function()
-			awful.client.swap.bydirection("down")
-		end,
-		{ description = "swap with lower client", group = "client" }),
+		awful.client.swap.bydirection("down")
+	end, { description = "swap with lower client", group = "client" }),
 	awful.key({ modkey, "Shift" }, "j", function()
 		awful.client.swap.byidx(1)
 	end, { description = "swap with next client by index", group = "client" }),
@@ -585,7 +635,7 @@ awful.rules.rules = {
 			role = {
 				"AlarmWindow", -- Thunderbird's calendar.
 				"ConfigManager", -- Thunderbird's about:config.
-				"pop-up",    -- e.g. Google Chrome's (detached) Developer Tools.
+				"pop-up", -- e.g. Google Chrome's (detached) Developer Tools.
 			},
 		},
 		properties = { floating = true },

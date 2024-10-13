@@ -157,13 +157,13 @@ local systray = wibox.widget.systray()
 
 -- Create memwidget
 -- -- Create a textbox for the memory widget
-local memwidget = wibox.widget.textbox()
-memwidget.font = default_font
+local ramwidget = wibox.widget.textbox()
+ramwidget.font = default_font
 
 -- -- Create a container for the memory details
-local mem_details = wibox.widget.textbox()
-mem_details.font = default_font
-mem_details.visible = false -- Initially hidden
+local ram_details = wibox.widget.textbox()
+ram_details.font = default_font
+ram_details.visible = false -- Initially hidden
 
 -- -- Create a textbox for the CPU widget
 local cpuwidget = wibox.widget.textbox()
@@ -180,13 +180,13 @@ disk_details.visible = false -- Initially hidden
 
 -- -- Register the vicious memory widget
 vicious.cache(vicious.widgets.mem)
-vicious.register(memwidget, vicious.widgets.mem, function(widget, args)
+vicious.register(ramwidget, vicious.widgets.mem, function(widget, args)
 	local used_pct = args[1]
 	return string.format("RAM: %.1f%%", used_pct)
 end, 13)
 
 -- -- Register the memory details widget
-vicious.register(mem_details, vicious.widgets.mem, function(widget, args)
+vicious.register(ram_details, vicious.widgets.mem, function(widget, args)
 	local used_gb = args[2] / 1024
 	local total_gb = args[3] / 1024
 	return string.format(" [%.1f GB/%.0f GB]", used_gb, total_gb)
@@ -208,8 +208,8 @@ vicious.register(disk_details, vicious.widgets.fs, ' [${/ avail_gb} GB/${/ size_
 
 -- -- Create a wibox to hold the all widgets
 local mem_container = wibox.layout.fixed.horizontal()
-mem_container:add(memwidget)
-mem_container:add(mem_details)
+mem_container:add(ramwidget)
+mem_container:add(ram_details)
 mem_container:add(wibox.widget.textbox(" |"))
 mem_container:add(cpuwidget)
 mem_container:add(wibox.widget.textbox(" |"))
@@ -217,9 +217,9 @@ mem_container:add(diskwidget)
 mem_container:add(disk_details)
 
 -- -- Add click functionality to the memory widget
-memwidget:buttons(awful.util.table.join(awful.button({}, 1, function()
-	mem_details.visible = not mem_details.visible   -- Toggle visibility
-	mem_details:emit_signal("widget::redraw_needed") -- Redraw the widget
+ramwidget:buttons(awful.util.table.join(awful.button({}, 1, function()
+	ram_details.visible = not ram_details.visible   -- Toggle visibility
+	ram_details:emit_signal("widget::redraw_needed") -- Redraw the widget
 end)))
 
 -- -- Add click functionality to the disk widget

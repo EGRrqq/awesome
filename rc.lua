@@ -169,6 +169,15 @@ mem_details.visible = false -- Initially hidden
 local cpuwidget = wibox.widget.textbox()
 cpuwidget.font = default_font
 
+-- -- Create a textbox for the disk widget
+local diskwidget = wibox.widget.textbox()
+diskwidget.font = default_font
+
+-- Create a container for the disk details
+local disk_details = wibox.widget.textbox()
+disk_details.font = default_font
+disk_details.visible = false -- Initially hidden
+
 -- -- Register the vicious memory widget
 vicious.cache(vicious.widgets.mem)
 vicious.register(memwidget, vicious.widgets.mem, function(widget, args)
@@ -183,7 +192,6 @@ vicious.register(mem_details, vicious.widgets.mem, function(widget, args)
 	return string.format(" [%.1f GB/%.0f GB]", used_gb, total_gb)
 end, 13)
 
-
 -- -- Register the vicious CPU widget
 vicious.cache(vicious.widgets.cpu)
 vicious.register(cpuwidget, vicious.widgets.cpu, function(widget, args)
@@ -191,16 +199,33 @@ vicious.register(cpuwidget, vicious.widgets.cpu, function(widget, args)
 	return string.format(" CPU: %.1f%%", cpu_pct) -- Format the output
 end, 3)
 
--- -- Create a wibox to hold the widgets
+-- Register the vicious disk widget
+vicious.cache(vicious.widgets.fs)
+vicious.register(diskwidget, vicious.widgets.fs, ' DISK: ${/ used_p}%', 60)
+
+-- Register the disk details widget
+vicious.register(disk_details, vicious.widgets.fs, ' [${/ avail_gb} GB/${/ size_gb} GB]', 60)
+
+-- -- Create a wibox to hold the all widgets
 local mem_container = wibox.layout.fixed.horizontal()
 mem_container:add(memwidget)
 mem_container:add(mem_details)
+mem_container:add(wibox.widget.textbox(" |"))
 mem_container:add(cpuwidget)
+mem_container:add(wibox.widget.textbox(" |"))
+mem_container:add(diskwidget)
+mem_container:add(disk_details)
 
 -- -- Add click functionality to the memory widget
 memwidget:buttons(awful.util.table.join(awful.button({}, 1, function()
 	mem_details.visible = not mem_details.visible   -- Toggle visibility
 	mem_details:emit_signal("widget::redraw_needed") -- Redraw the widget
+end)))
+
+-- -- Add click functionality to the disk widget
+diskwidget:buttons(awful.util.table.join(awful.button({}, 1, function()
+	disk_details.visible = not disk_details.visible  -- Toggle visibility
+	disk_details:emit_signal("widget::redraw_needed") -- Redraw the widget
 end)))
 
 -- Create a textclock widget

@@ -102,9 +102,9 @@ myawesomemenu = {
 			hotkeys_popup.show_help(nil, awful.screen.focused())
 		end,
 	},
-	{ "manual", terminal .. " -e man awesome" },
+	{ "manual",      terminal .. " -e man awesome" },
 	{ "edit config", editor_cmd .. " " .. awesome.conffile },
-	{ "restart", awesome.restart },
+	{ "restart",     awesome.restart },
 	{
 		"quit",
 		function()
@@ -147,9 +147,9 @@ mykeyboardlayout = awful.widget.keyboardlayout()
 -- Create separator widget
 local spacer = wibox.widget.separator({
 	orientation = "vertical", -- or "vertical" depending on your layout
-	forced_width = 10, -- Set the width of the spacer
-	thickness = 2, -- Set the thickness of the separator
-	color = "#FFFFFF", -- Set the color of the separator
+	forced_width = 10,       -- Set the width of the spacer
+	thickness = 2,           -- Set the thickness of the separator
+	color = "#FFFFFF",       -- Set the color of the separator
 })
 
 -- Create systray widget
@@ -163,13 +163,17 @@ memwidget.font = default_font
 -- -- Create a container for the memory details
 local mem_details = wibox.widget.textbox()
 mem_details.font = default_font
-mem_details.visible = true -- Initially hidden
+mem_details.visible = false -- Initially hidden
+
+-- -- Create a textbox for the CPU widget
+local cpuwidget = wibox.widget.textbox()
+cpuwidget.font = default_font
 
 -- -- Register the vicious memory widget
 vicious.cache(vicious.widgets.mem)
 vicious.register(memwidget, vicious.widgets.mem, function(widget, args)
 	local used_pct = args[1]
-	return string.format("%.1f%%", used_pct)
+	return string.format("RAM: %.1f%%", used_pct)
 end, 13)
 
 -- -- Register the memory details widget
@@ -179,14 +183,23 @@ vicious.register(mem_details, vicious.widgets.mem, function(widget, args)
 	return string.format(" [%.1f GB/%.0f GB]", used_gb, total_gb)
 end, 13)
 
+
+-- -- Register the vicious CPU widget
+vicious.cache(vicious.widgets.cpu)
+vicious.register(cpuwidget, vicious.widgets.cpu, function(widget, args)
+	local cpu_pct = args[1]                      -- Get the CPU usage percentage
+	return string.format(" CPU: %.1f%%", cpu_pct) -- Format the output
+end, 3)
+
 -- -- Create a wibox to hold the widgets
 local mem_container = wibox.layout.fixed.horizontal()
 mem_container:add(memwidget)
 mem_container:add(mem_details)
+mem_container:add(cpuwidget)
 
 -- -- Add click functionality to the memory widget
 memwidget:buttons(awful.util.table.join(awful.button({}, 1, function()
-	mem_details.visible = not mem_details.visible -- Toggle visibility
+	mem_details.visible = not mem_details.visible   -- Toggle visibility
 	mem_details:emit_signal("widget::redraw_needed") -- Redraw the widget
 end)))
 
@@ -306,7 +319,7 @@ awful.screen.connect_for_each_screen(function(s)
 			s.mypromptbox,
 		},
 		s.mytasklist, -- Middle widget
-		{ -- Right widgets
+		{           -- Right widgets
 			layout = wibox.layout.fixed.horizontal,
 			mykeyboardlayout,
 			spacer,
@@ -335,7 +348,7 @@ root.buttons(gears.table.join(
 
 -- {{{ Key bindings
 globalkeys = gears.table.join(
-	-- Audio manipulations
+-- Audio manipulations
 	awful.key({}, "XF86AudioRaiseVolume", function()
 		awful.spawn("pactl set-sink-volume @DEFAULT_SINK@ +5%")
 	end, { description = "Increase audio volume", group = "audio" }),
@@ -635,7 +648,7 @@ awful.rules.rules = {
 			role = {
 				"AlarmWindow", -- Thunderbird's calendar.
 				"ConfigManager", -- Thunderbird's about:config.
-				"pop-up", -- e.g. Google Chrome's (detached) Developer Tools.
+				"pop-up",    -- e.g. Google Chrome's (detached) Developer Tools.
 			},
 		},
 		properties = { floating = true },

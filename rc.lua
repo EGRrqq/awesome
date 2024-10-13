@@ -156,11 +156,11 @@ local spacer = wibox.widget.separator({
 local systray = wibox.widget.systray()
 
 -- Create memwidget
--- -- Create a textbox for the memory widget
+-- -- Create a textbox for the ram widget
 local ramwidget = wibox.widget.textbox()
 ramwidget.font = default_font
 
--- -- Create a container for the memory details
+-- -- Create a container for the ram details
 local ram_details = wibox.widget.textbox()
 ram_details.font = default_font
 ram_details.visible = false -- Initially hidden

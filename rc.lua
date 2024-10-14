@@ -141,7 +141,8 @@ menubar.utils.terminal = terminal -- Set the terminal for applications that requ
 -- }}}
 
 -- Keyboard map indicator and switcher
-mykeyboardlayout = awful.widget.keyboardlayout()
+local mykeyboardlayout = awful.widget.keyboardlayout()
+mykeyboardlayout = wibox.container.margin(mykeyboardlayout, 5, 0, 0, 0)
 
 -- {{{ Wibar
 -- Create separator widget
@@ -154,6 +155,7 @@ local spacer = wibox.widget.separator({
 
 -- Create systray widget
 local systray = wibox.widget.systray()
+systray = wibox.container.margin(systray, 2, 2, 2, 2) -- Add some margins
 
 -- Create memwidget
 -- -- Create a textbox for the ram widget
@@ -201,10 +203,10 @@ end, 3)
 
 -- Register the vicious disk widget
 vicious.cache(vicious.widgets.fs)
-vicious.register(diskwidget, vicious.widgets.fs, ' DISK: ${/ used_p}%', 60)
+vicious.register(diskwidget, vicious.widgets.fs, " DISK: ${/ used_p}%", 60)
 
 -- Register the disk details widget
-vicious.register(disk_details, vicious.widgets.fs, ' [${/ avail_gb} GB/${/ size_gb} GB]', 60)
+vicious.register(disk_details, vicious.widgets.fs, " [${/ avail_gb} GB/${/ size_gb} GB]", 60)
 
 -- -- Create a wibox to hold the all widgets
 local mem_container = wibox.layout.fixed.horizontal()
@@ -215,6 +217,7 @@ mem_container:add(cpuwidget)
 mem_container:add(wibox.widget.textbox(" |"))
 mem_container:add(diskwidget)
 mem_container:add(disk_details)
+mem_container = wibox.container.margin(mem_container, 5, 5, 0, 0)
 
 -- -- Add click functionality to the memory widget
 ramwidget:buttons(awful.util.table.join(awful.button({}, 1, function()
@@ -230,6 +233,7 @@ end)))
 
 -- Create a textclock widget
 mytextclock = wibox.widget.textclock()
+mytextclock = wibox.container.margin(mytextclock, 0, 5, 0, 0)
 mytextclock.font = default_font
 
 -- Create a wibox for each screen and add it
@@ -341,7 +345,7 @@ awful.screen.connect_for_each_screen(function(s)
 			mylauncher,
 			s.mytaglist,
 			s.mylayoutbox,
-			s.mypromptbox,
+			wibox.container.margin(s.mypromptbox, 5, 5, 0, 0, nil, false),
 		},
 		s.mytasklist, -- Middle widget
 		{           -- Right widgets

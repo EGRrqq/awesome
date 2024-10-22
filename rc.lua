@@ -547,7 +547,7 @@ clientkeys = gears.table.join(
 	awful.key({ modkey }, "o", function(c)
 		c:move_to_screen()
 	end, { description = "move to screen", group = "client" }),
-	awful.key({ modkey }, "t", function(c)
+	awful.key({ modkey, "Control" }, "t", function(c)
 		c.ontop = not c.ontop
 	end, { description = "toggle keep on top", group = "client" }),
 	awful.key({ modkey }, "n", function(c)
@@ -559,6 +559,10 @@ clientkeys = gears.table.join(
 		c.maximized = not c.maximized
 		c:raise()
 	end, { description = "(un)maximize", group = "client" }),
+	awful.key({ modkey, "Control" }, "s", function(c)
+		c.sticky = not c.sticky
+		c:raise()
+	end, { description = "toggle sticky", group = "client" }),
 	awful.key({ modkey, "Control" }, "m", function(c)
 		c.maximized_vertical = not c.maximized_vertical
 		c:raise()
@@ -566,7 +570,9 @@ clientkeys = gears.table.join(
 	awful.key({ modkey, "Shift" }, "m", function(c)
 		c.maximized_horizontal = not c.maximized_horizontal
 		c:raise()
-	end, { description = "(un)maximize horizontally", group = "client" })
+	end, { description = "(un)maximize horizontally", group = "client" }),
+	awful.key({ modkey, "Control" }, "b", function(c) awful.titlebar.toggle(c) end,
+		{ description = "toggle title bar", group = "client" })
 )
 
 -- Bind all key numbers to tags.
@@ -683,6 +689,12 @@ awful.rules.rules = {
 		properties = { floating = true },
 	},
 
+	-- Add titlebars to normal clients and dialogs
+	{
+		rule_any = { type = { "normal", "dialog" } },
+		properties = { titlebars_enabled = false },
+	},
+
 	-- Set Firefox to always map on the tag named "2" on screen 1.
 	-- { rule = { class = "Firefox" },
 	--   properties = { screen = 1, tag = "2" } },
@@ -700,6 +712,45 @@ client.connect_signal("manage", function(c)
 		-- Prevent clients from being unreachable after screen count changes.
 		awful.placement.no_offscreen(c)
 	end
+end)
+
+-- Add a titlebar if titlebars_enabled is set to true in the rules.
+client.connect_signal("request::titlebars", function(c)
+	-- buttons for the titlebar
+	local buttons = gears.table.join(
+		awful.button({}, 1, function()
+			c:emit_signal("request::activate", "titlebar", { raise = true })
+			awful.mouse.client.move(c)
+		end),
+		awful.button({}, 3, function()
+			c:emit_signal("request::activate", "titlebar", { raise = true })
+			awful.mouse.client.resize(c)
+		end)
+	)
+	awful.titlebar(c):setup({
+		{ -- Left
+			awful.titlebar.widget.iconwidget(c),
+			buttons = buttons,
+			layout = wibox.layout.fixed.horizontal,
+		},
+		{ -- Middle
+			{ -- Title
+				align = "center",
+				widget = awful.titlebar.widget.titlewidget(c),
+			},
+			buttons = buttons,
+			layout = wibox.layout.flex.horizontal,
+		},
+		{ -- Right
+			awful.titlebar.widget.floatingbutton(c),
+			awful.titlebar.widget.maximizedbutton(c),
+			awful.titlebar.widget.stickybutton(c),
+			awful.titlebar.widget.ontopbutton(c),
+			awful.titlebar.widget.closebutton(c),
+			layout = wibox.layout.fixed.horizontal(),
+		},
+		layout = wibox.layout.align.horizontal,
+	})
 end)
 
 -- Enable sloppy focus, so that focus follows mouse.
